@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Live Clock</title>
+</head>
+
+<body>
+
+	<form id=tz>
+		<label for="timezone">Choose a timezone:</label>
+		<select id="timezone" name="timezone">
+			<option value="newYork">New York</option>
+			<option value="texas">Texas</option>
+			<option value="sanFrancisco">San Francisco</option>
+			<option value="london">London</option>
+		</select>
+		<input type="submit" value="Submit">
+	</form>
+
+ 	<div>
+ 		<p id = "clock">Where clock will go</p>
+		<button onclick="startTime('default')">What's the time where you are?</button>
+ 	</div>
+
+	<script>
+
+	// Sets the interval to re-run this function, gets the time, and sets the HTML clock to the time
+	function startTime(tz) {
+		// if there is an existing interval, this clears it (when a user picks another dropdown item)
+		if (typeof intervalId !== 'undefined') {
+			clearInterval(intervalId);
+		}
+		// this assigns the interval's ID so it can be stopped later on
+		intervalId = setInterval(function() {
+
+			var localTime = new Date();
+			var utcTime = localTime.getTime() + localTime.getTimezoneOffset() * 60000;
+
+			// accounting for the various dropdown options
+			var offset = 0;
+			if (tz=='newYork') {
+				offset = -4 * 3600000;
+			}
+			else if (tz=='texas') {
+				offset = -5 * 3600000;
+			}
+			else if (tz=='london') {
+				offset = 3600000;
+			}
+			else if (tz=='sanFrancisco') {
+				offset = -7 * 3600000;
+			}
+			else if (tz=='default') {
+				offset = localTime.getTimezoneOffset() * -60000;
+			}
+			else {
+				console.log(`I don't know how you got here, but I'm just giving you UTC time`)
+			}
+
+			// setting the date
+			date = new Date(utcTime + offset);
+			var hours = formatTime(date.getHours());
+			var minutes = formatTime(date.getMinutes());
+			var seconds = formatTime(date.getSeconds());
+			document.getElementById("clock").innerHTML = `${hours}:${minutes}:${seconds}`;
+		}, 1000);
+	}
+
+	// this ensures that the hours, minutes, and seconds are two digits
+	function formatTime(val) {
+		if (val < 10) {
+			return `0${val}`;
+		}
+		return val;
+	}
+
+	// activates whenever the submit button is clicked when the user chooses an element of the dropdown
+	document.getElementById('tz').onsubmit = function() {
+		var tz = document.getElementById('timezone').value;
+		startTime(tz);
+		return false;
+	}
+
+	</script>
+
+</body>
+
+</html>
